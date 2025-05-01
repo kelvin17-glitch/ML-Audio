@@ -42,7 +42,7 @@ class Input:
         stft_result = librosa.stft(y, n_fft=n_fft, hop_length=hop_length)
         # Calculate Spectogram
         mag_spec = np.abs(stft_result)
-        # Convert Amplitude & Power Specs to dB
+        # Convert Amplitude Spec to dB
         self.mag_db = librosa.amplitude_to_db(mag_spec, ref=np.max)
 
     def plot_mag_spec(self, genre, hop_length=512):
@@ -86,10 +86,10 @@ class Input:
         # Initiate Mel Spectrogram
         mel_spec = librosa.feature.melspectrogram(y=self.y, sr=self.sr, n_fft=n_fft, hop_length=hop_length, n_mels=n_mels)
         # Scale to db
-        mel_db = librosa.power_to_db(mel_spec, ref=np.max)
+        self.mel_db = librosa.power_to_db(mel_spec, ref=np.max)
         # Mel Spectrogram Plot
         plt.figure(figsize=(15, 6))
-        librosa.display.specshow(data=mel_db,
+        librosa.display.specshow(data=self.mel_db,
                                  sr=self.sr,
                                  hop_length=hop_length,
                                  x_axis="time",
@@ -97,3 +97,54 @@ class Input:
                                  cmap="viridis"),
         plt.colorbar(format='%+2.0f dB'),
         plt.title(f"{genre.title()} Mel Spectrogram");
+
+    def plot_comparison_specs(self, genre, n_fft=2048, hop_length=512, n_mels=128):
+        """
+        Returns side-by-side Genre-specific Magnitude and Mel Spectogram plots
+
+        Parameters
+        ----------
+        genre : str
+                Name of Genre in question
+        n_fft : int, default = 2048
+                Number of FFT points. Also the window size
+        hop_length : int, default = 512
+                The number of samples between adjacent STFT columns
+        n_mels : int, default = 128
+                Number of Mel for the Mel Spectrogram bands (vertical resolution)
+        """
+        # Load file
+        y, sr = librosa.load(self.filepath, sr=self.sr)
+        # Perform STFT
+        stft_result = librosa.stft(y, n_fft=n_fft, hop_length=hop_length)
+        # Calculate Spectogram
+        mag_spec = np.abs(stft_result)
+        # Convert Amplitude Spec to dB
+        mag_db = librosa.amplitude_to_db(mag_spec, ref=np.max)
+
+        # Initiate Mel Spectrogram
+        mel_spec = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=n_fft, hop_length=hop_length, n_mels=n_mels)
+        # Scale to db
+        mel_db = librosa.power_to_db(mel_spec, ref=np.max)
+        
+        # Plot Spectrogram
+        fig, axs = plt.subplots(1, 2,figsize=(15, 6))
+        img1 = librosa.display.specshow(data=mag_db,
+                                 sr=self.sr,
+                                 hop_length=hop_length,
+                                 x_axis="time",
+                                 y_axis="log",
+                                 cmap="viridis",
+                                 ax=axs[0])
+        axs[0].set_title(f"{genre.title()} Magnitude Spectrogram")
+        fig.colorbar(img1, ax=axs[0], format='%+2.0f dB');
+        # Plot Mel Spectrogram
+        img2 = librosa.display.specshow(data=mel_db,
+                                 sr=self.sr,
+                                 hop_length=hop_length,
+                                 x_axis="time",
+                                 y_axis="mel",
+                                 cmap="viridis",
+                                 ax=axs[1])
+        axs[1].set_title(f"{genre.title()} Mel Spectrogram")
+        fig.colorbar(img2, ax=axs[1], format='%+2.0f dB');
