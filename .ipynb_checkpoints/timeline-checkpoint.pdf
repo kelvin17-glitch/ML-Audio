@@ -1,0 +1,421 @@
+Goal: Comprehensively learn audio analysis concepts with librosa and apply ML techniques to build, evaluate, and refine a robust song genre classification model.
+
+Key Tools/Libraries: Python, numpy, pandas, matplotlib/seaborn, scikit-learn, librosa.
+
+Dataset: GTZAN Genre Collection or a subset of the Free Music Archive (FMA).
+
+Structure: ~3 hours daily, 7 days a week. Weekends can incorporate catch-up/review.
+
+Core Resources (Keep these handy):
+
+Librosa Documentation: https://librosa.org/doc/latest/index.html (Absolutely essential)
+Scikit-learn Documentation: https://scikit-learn.org/stable/documentation.html   
+Numpy Documentation: https://numpy.org/doc/stable/
+Pandas Documentation: https://pandas.pydata.org/docs/
+Matplotlib Documentation: https://matplotlib.org/stable/contents.html
+Seaborn Documentation: https://seaborn.pydata.org/api.html
+GTZAN Dataset Info: http://marsyas.info/downloads/datasets.html (Note: Requires finding download links, often available via academic sites or mirrors). Example source: https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
+FMA Dataset Info: https://github.com/mdeff/fma (Consider starting with fma_small or fma_medium)
+Month 1: Audio Foundations, Librosa Mastery & Feature Engineering
+
+Week 1: Audio Fundamentals & Librosa Basics
+
+Day 1-2: Digital Audio Theory & Setup
+
+Learn (1.5 hrs/day):
+Concepts: Sound waves (frequency, amplitude, phase), Analog vs. Digital, Sampling Rate, Nyquist Theorem, Bit Depth, Quantization, Decibels (dB), common audio formats (WAV, MP3 - high-level structure).
+Resources:
+Search: "digital audio basics tutorial", "Nyquist theorem explained simply", "audio sampling and quantization".
+Librosa Docs: Read the "Introduction" and "Core Concepts" sections.
+Articles/Videos: Look for introductory videos on YouTube channels like Computerphile or physics channels explaining sound waves.
+Do (1.5 hrs/day):
+Python Review: If needed, use official Python tutorials or sites like Real Python.
+Setup: Install Anaconda/Miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). Create a dedicated environment (conda create -n audio_ml python=3.9). Activate it (conda activate audio_ml).   
+Install Libraries: conda install numpy pandas matplotlib seaborn scikit-learn jupyterlab (or pip install ...). Then pip install librosa sounddevice (sounddevice for playback, optional but helpful).
+Find & Read: Search for "introduction to digital audio processing python".
+Day 3-4: Introduction to Librosa - Loading & Basic Representation
+
+Learn (1 hr/day):
+Librosa's Purpose: Understand it's for audio analysis in Python.
+librosa.load(): Deep dive into its documentation. Understand y (time series) and sr (sampling rate). Note the default sr=22050 and its implications (computational efficiency vs. frequency range). Mono conversion by default.
+Do (2 hrs/day):
+Dataset: Download and organize GTZAN or FMA subset. Note file paths.
+Loading Script: In a Jupyter notebook or Python script: import librosa, audio_path = 'path/to/your/audio.wav', y, sr = librosa.load(audio_path). Print y.shape, sr.
+Experiment: Load the same file with sr=None (native SR) vs. default sr=22050. Compare shapes and sr values. Load stereo files if available and see how mono=True (default) vs mono=False changes y.shape.
+Plotting: import matplotlib.pyplot as plt, plt.figure(figsize=(12, 4)), plt.plot(y), plt.title('Raw Waveform'), plt.xlabel('Sample Index'), plt.ylabel('Amplitude'), plt.show().
+Playback (Jupyter): import IPython.display as ipd, ipd.Audio(y, rate=sr). (Or use sounddevice: import sounddevice as sd, sd.play(y, sr), sd.wait()). Listen to what you loaded!
+Day 5-7: Time-Domain Visualization & Basic Manipulation
+
+Learn (1 hr/day):
+Waveform Interpretation: What do peaks/valleys mean? Amplitude Envelope concept (general loudness contour).
+Numpy Basics: Slicing (y[start:end]), element-wise operations (y * 2 for amplification, y * 0.5 for attenuation).
+Frames: Introduce the idea that analysis is often done on short, overlapping frames of audio, not the whole file at once (precursor to STFT).
+Do (2 hrs/day):
+Better Visualization: import librosa.display, plt.figure(figsize=(12, 4)), librosa.display.waveshow(y, sr=sr), plt.title('Waveform via librosa.display'), plt.show(). Notice the time axis.
+Explore Subsets: Plot y[:sr] (first second), y[sr*5:sr*10] (seconds 5-10).
+Basic Effects: Create y_amplified = y * 1.5, y_attenuated = y * 0.5. Plot and listen.
+Simple Stats: import numpy as np, print(f"Max Amp: {np.max(np.abs(y))}"), print(f"Mean Amp: {np.mean(y)}"). Note: Mean is often near zero for centered audio. RMS (Week 3) is more meaningful for energy.
+Documentation Habit: Start adding comments (#) explaining why you are doing something.
+Week 2: Frequency Domain Analysis & Spectrograms with Librosa
+
+Day 8-9: Introduction to Frequency Domain & STFT
+
+Learn (1.5 hrs/day):
+Why Frequency?: Timbre, pitch, and many characteristics are better seen in frequency.
+Fourier Transform Intuition: Decomposing a signal into its constituent sine waves (frequencies). Search "Fourier Transform visualization", "3Blue1Brown Fourier Transform".
+STFT: Applying FT repeatedly on short, overlapping windows. Understand the trade-off between time and frequency resolution.
+Key Parameters: n_fft (window size, determines frequency resolution), hop_length (step size between windows, determines time resolution). Read the librosa.stft documentation.
+Do (1.5 hrs/day):
+Calculate STFT: stft_result = librosa.stft(y, n_fft=2048, hop_length=512).
+Examine Output: Print stft_result.shape. Notice it's complex (dtype=complex). Rows correspond to frequency bins (up to n_fft // 2 + 1), columns to time frames. Calculate expected dimensions: n_frames = 1 + len(y) // hop_length.
+Day 10-12: Spectrograms & Mel Spectrograms
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                              YOU'RE HERE(29/04/2025)
+
+
+
+Learn (1.5 hrs/day):
+Magnitude Spectrogram: np.abs(stft_result). Represents the amplitude of each frequency at each time.
+Power Spectrogram: np.abs(stft_result)**2. Represents energy.
+Log-Scale (dB): Human perception of loudness is logarithmic. librosa.amplitude_to_db() converts linear amplitude/power to dB. Read its documentation.
+Mel Scale: Perceptually motivated frequency scale, closer to human pitch perception (more bins for lower frequencies). Search "Mel Scale audio".
+Mel Spectrogram: librosa.feature.melspectrogram. Spectrogram warped onto the Mel scale. Read its documentation. Understand parameter n_mels.
+Do (1.5 hrs/day):
+Calculate Spectrograms:
+mag_spec = np.abs(stft_result)
+power_spec = mag_spec**2
+log_power_spec = librosa.amplitude_to_db(power_spec, ref=np.max)
+Calculate Mel Spectrogram: mel_spec = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=2048, hop_length=512, n_mels=128)
+Check Shapes: Print shapes of all calculated spectrograms. Note mel_spec has n_mels rows.
+Day 13-14: Visualizing Spectrograms & Librosa Display
+
+Learn (1 hr/day):
+librosa.display.specshow: The go-to function for visualizing spectrograms. Read its documentation carefully.
+Key Parameters: data (the spectrogram), sr, hop_length, x_axis ('time'), y_axis ('linear', 'log', 'mel'). Color maps (cmap). Color bar (plt.colorbar()).
+Do (2 hrs/day):
+Visualize Extensively:
+librosa.display.specshow(log_power_spec, sr=sr, hop_length=hop_length, x_axis='time', y_axis='log')
+librosa.display.specshow(librosa.amplitude_to_db(mel_spec, ref=np.max), sr=sr, hop_length=hop_length, x_axis='time', y_axis='mel')
+Experiment: Change n_fft, hop_length, n_mels and observe the changes in the visualized spectrograms (resolution trade-offs). Try different cmap values.
+Compare Genres: Load audio from 2-3 different genres (e.g., classical, metal, blues) and display their Mel spectrograms side-by-side. Note the visual differences.
+Week 3: Exploring Core Audio Features with Librosa
+
+Day 15-16: Time-Domain Features
+
+Learn (1 hr/day):
+RMS Energy: librosa.feature.rms. Frame-by-frame energy calculation, related to loudness. Read docs.
+Zero-Crossing Rate: librosa.feature.zero_crossing_rate. Frame-by-frame rate at which the signal crosses the zero axis. Related to "noisiness" or dominant frequency (higher for high-frequency/noisy sounds). Read docs.
+Do (2 hrs/day):
+Calculate: rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=512)[0], zcr = librosa.feature.zero_crossing_rate(y=y, frame_length=2048, hop_length=512)[0]. Note the [0] to get the 1D array.
+Check Shapes: Print rms.shape, zcr.shape. Should match the number of frames.
+Plot over Time: Use matplotlib to plot RMS and ZCR values against time frames. You might need to generate a time axis: times = librosa.times_like(rms, sr=sr, hop_length=512). Plot alongside waveshow or specshow for context.
+Summary Stats (File Level): print(f"Mean RMS: {np.mean(rms)}, Std RMS: {np.std(rms)}"), print(f"Mean ZCR: {np.mean(zcr)}, Std ZCR: {np.std(zcr)}"). Calculate these for different genre examples.
+Day 17-19: Frequency-Domain Features (Spectral)
+
+Learn (1.5 hrs/day): Focus on the intuition behind each feature:
+Spectral Centroid: librosa.feature.spectral_centroid. "Center of mass" of the spectrum. Brighter sounds have higher centroid. Docs.
+Spectral Bandwidth: librosa.feature.spectral_bandwidth. Measures the width/spread of the spectrum around the centroid. Docs.
+Spectral Contrast: librosa.feature.spectral_contrast. Measures difference between peaks and valleys in spectrum bands. Related to tonal vs. noise-like characteristics. Docs. Understand n_bands.
+Spectral Rolloff: librosa.feature.spectral_rolloff. Frequency below which a certain percentage (e.g., 85%) of the total spectral energy lies. Related to skewness of the spectrum. Docs. Understand roll_percent.
+Do (1.5 hrs/day):
+Calculate: Compute each feature using librosa.feature.*(y=y, sr=sr, n_fft=2048, hop_length=512). Remember [0] for 1D features. Spectral Contrast returns multiple rows (bands).
+Plot: Plot features over time (librosa.times_like).
+Compare: Calculate features for different genre examples. Do the values align with intuition (e.g., higher centroid for metal than classical)?
+Summary Stats (File Level): Calculate mean and standard deviation for each feature (and each band of contrast) per file. np.mean(feature, axis=1) for multi-row features like contrast.
+Day 20-21: Feature Aggregation & Initial Feature Set Design
+
+Learn (1 hr/day):
+Why Aggregate?: ML models typically need fixed-size input vectors per sample (file). Frame-level features produce variable-length sequences. Aggregation (mean, std, min, max, median, skew, kurtosis) reduces dimensionality and creates a fixed summary.
+Trade-offs: Aggregation loses temporal information but makes standard ML applicable.
+Do (2 hrs/day):
+Design Function: Write a Python function extract_features(audio_path):
+Loads audio: y, sr = librosa.load(audio_path, mono=True)
+Calculates frame-level features: RMS, ZCR, Centroid, Bandwidth, Rolloff, Contrast (maybe 4-7 bands). Use consistent n_fft, hop_length.
+Calculates summary stats: For each feature (and each band of contrast), compute np.mean, np.std, maybe np.min, np.max, scipy.stats.skew, scipy.stats.kurtosis.
+Collects stats: Store results in a dictionary (e.g., {'rms_mean': ..., 'rms_std': ..., 'centroid_mean': ..., 'contrast_1_mean': ...}).
+Returns the dictionary.
+Test Function: Call this function on 5-10 audio files from different genres. Print the resulting dictionaries. Ensure it works reliably. Add comments!
+Week 4: Advanced Features (MFCCs, Chroma) & Dataset Processing
+
+Day 22-24: Mel-Frequency Cepstral Coefficients (MFCCs) Deep Dive
+
+Learn (1.5 hrs/day):
+Revisit Mel Spectrogram: Foundation for MFCCs.
+Cepstrum: "Spectrum of the spectrum". Separates source (vocal cords) from filter (vocal tract). MFCCs are a type of cepstral feature. Search "cepstral analysis audio tutorial".
+Why MFCCs?: Capture timbral/textural characteristics, good for speech/music. Relatively robust to noise.
+Steps (Conceptual): Framing -> Windowing -> FFT -> Mel Filterbank -> Log -> DCT (Discrete Cosine Transform - decorrelates filterbank energies).
+Interpretation: Lower coefficients (~1-13) capture broad spectral shape (timbre). Higher ones capture finer details. Coefficient 0 often relates to energy (sometimes discarded).
+Librosa: librosa.feature.mfcc. Read docs. Key parameter n_mfcc.
+Do (1.5 hrs/day):
+Calculate: mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13, n_fft=2048, hop_length=512) (Commonly use 13, 20, or 40 MFCCs).
+Visualize: Use librosa.display.specshow(mfccs, sr=sr, hop_length=hop_length, x_axis='time'). Notice rows are coefficients, columns are frames.
+Summary Stats: Calculate mean and std dev for each MFCC coefficient across frames per file. E.g., mfcc_mean = np.mean(mfccs, axis=1), mfcc_std = np.std(mfccs, axis=1).
+Integrate: Add aggregated MFCC stats (e.g., mean and std for MFCCs 1-13) to your extract_features function. You'll add ~26 new features.
+Day 25-26: Chroma Features
+
+Learn (1 hr/day):
+Pitch Classes: The 12 notes in Western music (C, C#, ..., B). Chroma features project the entire spectrum onto these 12 bins.
+Purpose: Capture harmonic content, useful for chord/key identification, genre classification (where harmony matters).
+Librosa Functions:
+librosa.feature.chroma_stft: Based on STFT. Docs.
+librosa.feature.chroma_cqt: Based on Constant-Q Transform (better frequency resolution for lower frequencies). Docs. Often better for music.
+librosa.feature.chroma_cens: Energy normalized, smoothed version. Robust to dynamics/timbre changes. Docs.
+Do (2 hrs/day):
+Calculate: Compute chroma features using chroma_stft, chroma_cqt, chroma_cens. E.g., chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512).
+Visualize: librosa.display.specshow(chroma, sr=sr, hop_length=hop_length, y_axis='chroma', x_axis='time'). Note the 12 rows.
+Compare: Visually compare the outputs of the different chroma functions on the same audio file. chroma_cqt or chroma_cens are often preferred for music.
+Summary Stats: Calculate mean and std dev for each of the 12 chroma bins per file.
+Integrate: Add aggregated chroma stats (e.g., mean and std for each of the 12 bins from chroma_cqt) to your extract_features function. Adds ~24 features.
+Day 27-28: Full Dataset Feature Extraction & Saving
+
+Learn (1 hr/day):
+Batch Processing Issues: Files might be corrupt, too short, silent. Need error handling.
+Efficiency: This step can take hours.
+Storage: Pandas DataFrames are ideal. Saving to CSV (.to_csv()) is human-readable, Pickle (.to_pickle()) is faster for loading/saving Python objects but less portable.
+Do (2 hrs/day):
+Finalize Feature Set: Review all features added to your function. Decide on the final set (e.g., RMS mean/std, ZCR mean/std, Centroid mean/std, Bandwidth mean/std, Rolloff mean/std, Contrast (6 bands) mean/std, MFCCs (1-13) mean/std, Chroma_CQT (12 bins) mean/std). Count the total number of features.
+Prepare File List: Get a list of all audio file paths and their corresponding genre labels. Store this maybe in a list of tuples [(path1, label1), (path2, label2), ...].
+Run Extraction Loop:
+Python
+
+import pandas as pd
+from tqdm import tqdm # Progress bar
+import os
+
+all_features = []
+all_labels = []
+file_list = [...] # Your list of (path, label)
+
+for file_path, label in tqdm(file_list):
+    try:
+        features = extract_features(file_path) # Your function
+        # Add filename/label if needed
+        features['filename'] = os.path.basename(file_path)
+        features['label'] = label
+        all_features.append(features)
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
+        # Optionally log errors to a file
+
+feature_df = pd.DataFrame(all_features)
+Save DataFrame: feature_df.to_csv('audio_features.csv', index=False), or feature_df.to_pickle('audio_features.pkl').
+Patience: Let it run!
+Month 2: Machine Learning Modeling, Evaluation & Refinement
+
+Week 5: Data Prep, ML Fundamentals Review & Baseline Models
+
+Day 29-30: Data Loading, Cleaning & EDA
+
+Learn (1 hr/day):
+Reloading: pd.read_csv() or pd.read_pickle().
+Post-Extraction Check: Always re-check for NaNs/Infs introduced during calculation or missed by try-except. df.isnull().sum().sum().
+EDA on Features: Understand distributions, relationships between features, and relationships between features and the target (genre).
+Tools: Pandas .info(), .describe(). Seaborn heatmap() for correlations, boxplot() or violinplot() for feature distribution per genre. Matplotlib hist() for individual feature distributions.
+Do (2 hrs/day):
+Load: df = pd.read_csv('audio_features.csv') (or pickle).
+Inspect: df.info(), df.describe(), print(df.isnull().sum()). Handle NaNs if any (e.g., df.dropna(inplace=True) or imputation if appropriate, though drop is often simpler initially).
+Correlation: import seaborn as sns, corr_matrix = df.drop(['filename', 'label'], axis=1).corr(), plt.figure(figsize=(12, 10)), sns.heatmap(corr_matrix), plt.show(). Look for highly correlated features (potential redundancy).
+Distributions: sns.boxplot(data=df, x='label', y='rms_mean'), plt.show(). Do this for several key features (e.g., centroid_mean, a couple of MFCC means, a chroma mean). See which features show clear separation between genres.
+Class Balance: df['label'].value_counts().plot(kind='bar'), plt.show(). Check if genres are roughly equally represented. Imbalance might require techniques later (e.g., class weighting, stratified sampling).
+Day 31-32: Feature Scaling & Train/Test Split
+
+Learn (1 hr/day):
+Why Scale?: Many ML algorithms (SVM, KNN, NNs, Logistic Regression with regularization) assume or perform better when features are on a similar scale.
+Scalers: StandardScaler (zero mean, unit variance) - common default. MinMaxScaler (scales to [0, 1]) - useful if algorithm requires non-negative inputs. Read Scikit-learn's Preprocessing guide.
+Fit on Train ONLY: Crucial! Fit the scaler (.fit()) only on the training data, then use it to transform (.transform()) both training and testing data to avoid data leakage.
+Train/Test Split: train_test_split from sklearn.model_selection. Importance of stratify=y for classification to maintain class proportions in both sets. Read docs.   
+Do (2 hrs/day):
+Separate X/y: X = df.drop(['filename', 'label'], axis=1), y = df['label'].
+Split: from sklearn.model_selection import train_test_split, X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y) (Use a fixed random_state for reproducibility).
+Scale:
+Python
+
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+# Optional: Convert back to DataFrame for inspection
+# X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train.columns)
+# X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test.columns)
+Verify: Check shapes (.shape) of all resulting arrays/DataFrames. Check X_train_scaled.mean(axis=0) (should be near 0) and X_train_scaled.std(axis=0) (should be near 1).
+Day 33-35: ML Classification Review & Baseline Modeling
+
+Learn (1.5 hrs/day):
+Review Models: Logistic Regression (docs), K-Nearest Neighbors (docs), Support Vector Machines (docs). Understand basic assumptions, pros/cons for this task.
+Evaluation Metrics: Accuracy (docs), Precision, Recall, F1-score (understand macro, micro, weighted averages - read about classification_report docs), Confusion Matrix (docs). Focus on what each tells you, especially in multi-class settings.   
+Do (1.5 hrs/day):
+Import: from sklearn.linear_model import LogisticRegression, from sklearn.neighbors import KNeighborsClassifier, from sklearn.svm import SVC, from sklearn.metrics import accuracy_score, classification_report, ConfusionMatrixDisplay.
+Train & Predict (Example for LogReg):
+Python
+
+log_reg = LogisticRegression(max_iter=1000) # Increase max_iter if it doesn't converge
+log_reg.fit(X_train_scaled, y_train)
+y_pred_log_reg = log_reg.predict(X_test_scaled)
+Evaluate (Example for LogReg):
+Python
+
+print("Logistic Regression Accuracy:", accuracy_score(y_test, y_pred_log_reg))
+print("\nLogistic Regression Classification Report:\n", classification_report(y_test, y_pred_log_reg))
+ConfusionMatrixDisplay.from_predictions(y_test, y_pred_log_reg, xticks_rotation='vertical')
+plt.title('Logistic Regression Confusion Matrix')
+plt.show()
+Repeat: Do this for KNeighborsClassifier(n_neighbors=5) (try a few n_neighbors like 3, 7, 11) and SVC(kernel='linear'), SVC(kernel='rbf').
+Record Results: Note down the accuracy and key F1-scores (e.g., weighted avg) for each model. This is your performance baseline.
+Week 6: Tree-Based Models, Ensembles & Cross-Validation
+
+Day 36-37: Decision Trees & Random Forests
+
+Learn (1.5 hrs/day):
+Decision Trees: How they make splits (Gini impurity, entropy). Prone to overfitting. Visualize a simple tree if possible (sklearn.tree.plot_tree). Docs.
+Random Forests: Ensemble of multiple decision trees. Uses bagging (bootstrap sampling) and feature randomness at each split to reduce variance/overfitting. Key hyperparameters: n_estimators (number of trees), max_depth (tree depth), min_samples_split. Docs.
+Do (1.5 hrs/day):
+Import: from sklearn.tree import DecisionTreeClassifier, from sklearn.ensemble import RandomForestClassifier.
+Train & Evaluate DT: dtree = DecisionTreeClassifier(random_state=42), train, predict, evaluate. Observe if training accuracy is much higher than test accuracy (sign of overfitting). Try limiting max_depth=10.   
+Train & Evaluate RF: rf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1) (n_jobs=-1 uses all CPU cores). Train, predict, evaluate. Compare results to baselines and the single decision tree.
+Feature Importances (RF): importances = rf.feature_importances_, feature_names = X_train.columns, forest_importances = pd.Series(importances, index=feature_names).sort_values(ascending=False), plt.figure(figsize=(10, 6)), forest_importances[:20].plot(kind='bar'), plt.title('Top 20 Feature Importances (Random Forest)'), plt.show(). See which features the model relies on most.
+Day 38-39: Gradient Boosting Machines (GBM)
+
+Learn (1.5 hrs/day):
+Boosting Concept: Building models sequentially, where each new model tries to correct the errors of the previous ones.
+Gradient Boosting: A specific type of boosting using gradient descent. Can be very powerful but potentially slower to train and more sensitive to hyperparameters. Key params: n_estimators, learning_rate (shrinks contribution of each tree), max_depth. Docs.
+Mention Alternatives: Briefly read about XGBoost (https://xgboost.readthedocs.io/) and LightGBM (https://lightgbm.readthedocs.io/) - often faster/more performant implementations (optional installation/use).
+Do (1.5 hrs/day):
+Import: from sklearn.ensemble import GradientBoostingClassifier.
+Train & Evaluate GBM: gbm = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42). Train, predict, evaluate. Compare results. Note training time compared to RF. Try slightly different learning_rate or max_depth values if time permits.
+Day 40-42: Cross-Validation Deep Dive
+
+Learn (1.5 hrs/day):
+Problem with Single Split: Test set performance might be overly optimistic/pessimistic depending on the specific split.
+K-Fold CV: Splitting the training data into K folds. Train on K-1 folds, validate on the held-out fold. Repeat K times. Average the validation scores for a more robust performance estimate.
+Stratified K-Fold: Ensures class proportions are maintained in each fold, essential for classification. Docs.
+Scikit-learn Utilities: cross_val_score (quick score check), cross_validate (more detailed metrics). Read CV documentation. Emphasize using CV only on the training set (X_train_scaled, y_train) for model selection/hyperparameter tuning. The test set (X_test_scaled, y_test) is held out until the very end.
+Do (1.5 hrs/day):
+Import: from sklearn.model_selection import StratifiedKFold, cross_val_score.
+Setup CV: cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42).
+Run CV (Example for RF):
+Python
+
+rf_cv = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+scores = cross_val_score(rf_cv, X_train_scaled, y_train, cv=cv, scoring='accuracy')
+print(f"Random Forest CV Accuracy Scores: {scores}")
+print(f"Random Forest CV Mean Accuracy: {np.mean(scores):.4f} (+/- {np.std(scores):.4f})")
+Repeat: Perform CV for 1-2 other promising models (e.g., SVM with RBF kernel, Logistic Regression).
+Analyze: Compare the mean CV scores to the single test set scores obtained earlier. Note the standard deviation across folds - higher std indicates less stable performance.
+Week 7: Neural Networks & Hyperparameter Optimization
+
+Day 43-45: Multi-Layer Perceptrons (MLPs) for Classification
+
+Learn (1.5 hrs/day):
+MLP Basics: Review layers (input, hidden, output), neurons, weights, biases. Activation functions (ReLU for hidden layers, Softmax for multi-class output layer). Loss function (Cross-Entropy for classification). Optimizer (Adam is common). Backpropagation (high-level concept of how weights are updated).
+Scikit-learn's MLPClassifier: Simple interface for standard MLPs. Key parameters: hidden_layer_sizes (tuple defining architecture, e.g., (64,) or (128, 64)), activation, solver, alpha (L2 regularization), learning_rate_init, max_iter, early_stopping. Read docs.   
+Do (1.5 hrs/day):
+Import: from sklearn.neural_network import MLPClassifier.
+Train & Evaluate MLP:
+Python
+
+mlp = MLPClassifier(hidden_layer_sizes=(100,), activation='relu', solver='adam',
+                    alpha=0.0001, learning_rate_init=0.001, max_iter=500, # Increase max_iter if needed
+                    random_state=42, early_stopping=True, validation_fraction=0.1)
+mlp.fit(X_train_scaled, y_train)
+y_pred_mlp = mlp.predict(X_test_scaled)
+print("MLP Accuracy:", accuracy_score(y_test, y_pred_mlp))
+print("\nMLP Classification Report:\n", classification_report(y_test, y_pred_mlp))
+# Optional: Plot loss curve
+# plt.plot(mlp.loss_curve_)
+# plt.title("MLP Loss Curve")
+# plt.show()
+Experiment: Try different hidden_layer_sizes (e.g., (64, 32)), maybe activation='tanh'. Observe performance changes and convergence (if verbose=True). Compare to other models.
+Day 46-49: Hyperparameter Tuning with GridSearch & RandomizedSearch
+
+Learn (1 hr/day):
+Need for Tuning: Most models have hyperparameters that significantly affect performance; defaults aren't always optimal.
+GridSearchCV: Exhaustively tries all combinations of parameters specified in a grid. Can be very slow if the grid is large. Docs.
+RandomizedSearchCV: Samples a fixed number of parameter combinations from specified distributions. Often finds good parameters much faster than GridSearchCV, especially with many parameters. Docs.
+Process: Define parameter grid/distribution -> Choose model -> Instantiate SearchCV object (passing model, params, cv, scoring method) -> Fit SearchCV on training data (X_train_scaled, y_train) -> Examine best_params_, best_score_.
+Do (2 hrs/day):
+Import: from sklearn.model_selection import GridSearchCV, RandomizedSearchCV.
+Select Model(s): Choose 1 or 2 best performers from previous steps (e.g., RandomForest, SVM, maybe MLP if promising).
+Define Parameter Grid/Distribution (Example for RandomForest):
+Python
+
+param_dist_rf = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [None, 10, 20, 30],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+    # 'bootstrap': [True, False] # If you want to try that
+}
+rf_tune = RandomForestClassifier(random_state=42, n_jobs=-1)
+# Using RandomizedSearchCV (faster)
+random_search = RandomizedSearchCV(rf_tune, param_distributions=param_dist_rf,
+                                   n_iter=20, # Number of parameter settings that are sampled
+                                   cv=cv, # Use the StratifiedKFold from before
+                                   scoring='accuracy', random_state=42, n_jobs=-1, verbose=1)
+Run Search: random_search.fit(X_train_scaled, y_train) (This can take time!)
+Analyze Results:
+Python
+
+print("Best Parameters found by RandomizedSearch:", random_search.best_params_)
+print("Best CV Accuracy found by RandomizedSearch:", random_search.best_score_)
+# You can access the best model via: best_rf = random_search.best_estimator_
+Optional: Repeat for another model (e.g., SVC with C and gamma parameters, or MLP with hidden_layer_sizes, alpha, learning_rate_init).
+Week 8: Final Evaluation, Documentation & Wrap-up
+
+Day 50-51: Training Final Model(s) & Final Evaluation
+
+Learn (0.5 hrs/day): The purpose of the hold-out test set: provide an unbiased estimate of the final model's performance on unseen data. Train the best model (using best_params_) on the entire training set.
+Do (2.5 hrs/day):
+Instantiate Final Model: Use the best_params_ found via GridSearchCV/RandomizedSearchCV.
+Python
+
+# Example using results from RF tuning
+final_model = RandomForestClassifier(**random_search.best_params_, random_state=42, n_jobs=-1)
+# Or if you tuned SVC:
+# final_model = SVC(**grid_search_svc.best_params_, probability=True) # probability=True if needed later
+Train on Full Training Set: final_model.fit(X_train_scaled, y_train)
+Predict on Test Set: y_pred_final = final_model.predict(X_test_scaled)
+Final Evaluation:
+Python
+
+print("--- Final Model Evaluation on Test Set ---")
+print("Final Accuracy:", accuracy_score(y_test, y_pred_final))
+print("\nFinal Classification Report:\n", classification_report(y_test, y_pred_final))
+ConfusionMatrixDisplay.from_predictions(y_test, y_pred_final, xticks_rotation='vertical')
+plt.title('Final Model Confusion Matrix')
+plt.show()
+Record: This is your definitive project result. Compare it to the baseline and CV scores.
+Day 52-54: Advanced Error Analysis & Interpretation
+
+Learn (1 hr/day):
+Beyond Metrics: Look inside the confusion matrix. Which specific genres are confused most often? Why might that be (similar instrumentation, tempo, etc.)?
+Feature Importance Revisited: If the final model was tree-based, re-examine feature_importances_. Do they make sense?
+Model Interpretability: Briefly explore concepts like SHAP or LIME (optional, requires extra libraries/learning) for understanding why a specific prediction was made. Search "shap python tutorial", "lime machine learning".
+Do (2 hrs/day):
+Analyze Confusion Matrix: Identify the cells with high off-diagonal values. List the most common confusion pairs (e.g., "Rock often confused with Metal").
+Feature Importances (if applicable): Plot final_model.feature_importances_. Compare with earlier RF importances.
+Qualitative Analysis (Optional but insightful):
+Find indices of some misclassified samples: misclassified_idx = np.where(y_test != y_pred_final)[0]
+Get the corresponding original file paths/data.
+Listen to a few misclassified audio samples. Do they sound ambiguous?
+Look at the features for these misclassified samples in the original DataFrame (df.iloc[X_test.index[misclassified_idx]]). Do their features look more like the predicted genre or the true genre?
+Day 55-57: Code Cleaning, Documentation & Report Writing
+
+Learn (1 hr/day):
+Code Quality: Organizing code into functions (like extract_features, train_model, evaluate_model). Adding clear comments and docstrings. PEP 8 style guide. Aim for reproducibility.
+README.md: Essential for any project. Include: Project Title, Goal, Dataset Info, Setup Instructions (environment, libraries), How to Run (feature extraction, training, evaluation), Results Summary.
+Report Structure: Introduction (Problem, Goal), Data (Source, Features Extracted), Methods (Preprocessing, Models Used, Tuning, Evaluation Metrics), Results (Baseline, CV, Final Model Performance, Error Analysis), Discussion/Conclusion (Interpretation, Limitations), Future Work.
+Do (2 hrs/day):
+Refactor Code: Clean up Jupyter notebooks or scripts. Put reusable code into functions. Ensure clarity.
+Write README: Create a comprehensive README.md file in your project directory.
+Write Report: Draft the technical report documenting your process, decisions, and findings. Use plots generated throughout the project.
+Day 58-60: Final Review, Presentation Prep & Reflection
+
+Learn (0.5 hrs/day): Tips for presenting ML results: focus on the goal, data, key findings (visualizations!), and limitations/next steps. Keep it concise.
+Do (2.5 hrs/day):
+Review: Read through all your code, README, and report. Check for errors, clarity, consistency. Could someone else understand and run your project?
+Presentation Prep: Create a short slide deck or outline key talking points summarizing the project. Include key visuals (spectrogram example, feature importance, confusion matrix).
+Reflect: What was hardest? What's still unclear? What are 3 things you'd do differently next time? What are concrete next steps (e.g., try convolutional neural networks directly on spectrograms, use more data, engineer different features, deploy the model)?
+Buffer: Use any remaining time to catch up or polish documentation/code.

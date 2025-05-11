@@ -1,0 +1,17 @@
+# Introduction(Problem, Goal)
+I have always had an immense fascination with music and tech. With the advent of machine learning and AI, I wondered how I could practise the skills I love on the hobby I couldn't live without. This is the first of such projects. The goal is to refine my skills by creating a model that classifies audio-files into a genre from a list of ten.
+
+# Data(Source, Features Extracted)
+I chose the GTZAN dataset after a thorough analysis of my options. It's the most user friendly and most developers seem to recommend it to beginners. Features extracted include: Mel-Frequency Cepstral Coefficients, Chroma Features and Spectral features such as bandwidth and contrast.
+
+# Methods(Preprocessing, Models, Tuning, Evaluation Metrics)
+Preprocessing involved scaling using Standard Scaler. Various models such as a Decision Tree & Random Forests(Both Tree-based), a GradientBoostingClassifier and a MLPClassifier were experimented on. I settled on a Support Vector Classifier due to it's significantly higher accuracy score. It also beat the baseline. All models were tuned using RandomizedCV and GridsearchCV. Evaluation metrics were accuracy score, classification_report and Confusion Matrices.
+
+# Results(Baseline, CV, Final Model Performance, Error Analysis)
+Baseline was calculated using a Logistic Regression model. It sat at 0.795. All cross valuation was done using 5 folds. The final model had an accuracy of 0.825, easily beating the baseline. All models seemed to find it difficult to classify rock correctly(Probably due to it's close resemblance to other genres such as hiphop and metal).
+
+# Conclusion(Interpretation, Limitations)
+The task did not take as long as I had estimated. Instead of 2 months, it took 2 weeks. It was a good practice and I also learnt a lot about digital audio, audio processing and feature engineering. I don't think the project can run on a different dataset unless it is structured like the GTZAN.
+
+# Future Work
+My most obvious next step is to go into emotion recognition. That'll be my next project.
